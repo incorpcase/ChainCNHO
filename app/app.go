@@ -356,15 +356,6 @@ func New(
 		app.BlockedModuleAccountAddrs(),
 	)
 
-	app.TokenFactoryKeeper = tokenfactorykeeper.NewKeeper(
-		appCodec,
-		keys[tokenfactorytypes.StoreKey],
-		app.GetSubspace(tokenfactorytypes.ModuleName),
-		app.AccountKeeper,
-		app.BankKeeper,
-		app.DistrKeeper,
-	)
-
 	app.StakingKeeper = stakingkeeper.NewKeeper(
 		appCodec,
 		keys[stakingtypes.StoreKey],
@@ -391,6 +382,15 @@ func New(
 		app.BankKeeper,
 		&app.StakingKeeper,
 		authtypes.FeeCollectorName,
+	)
+
+	app.TokenFactoryKeeper = tokenfactorykeeper.NewKeeper(
+		appCodec,
+		keys[tokenfactorytypes.StoreKey],
+		app.GetSubspace(tokenfactorytypes.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.DistrKeeper,
 	)
 
 	app.SlashingKeeper = slashingkeeper.NewKeeper(
