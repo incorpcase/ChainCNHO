@@ -106,6 +106,10 @@ import (
 	cnhomodule "cnho/x/cnho"
 	cnhomodulekeeper "cnho/x/cnho/keeper"
 	cnhomoduletypes "cnho/x/cnho/types"
+
+	tokenfactory "cnho/x/tokenfactory"
+	tokenfactorykeeper "cnho/x/tokenfactory/keeper"
+	tokenfactorytypes "cnho/x/tokenfactory/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
 	appparams "cnho/app/params"
@@ -165,6 +169,7 @@ var (
 		ica.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		cnhomodule.AppModuleBasic{},
+		tokenfactory.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
@@ -238,7 +243,8 @@ type App struct {
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper  capabilitykeeper.ScopedKeeper
 
-	CnhoKeeper cnhomodulekeeper.Keeper
+	CnhoKeeper         cnhomodulekeeper.Keeper
+	TokenFactoryKeeper tokenfactorykeeper.Keeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// mm is the module manager
@@ -284,6 +290,7 @@ func New(
 		ibctransfertypes.StoreKey, icahosttypes.StoreKey, capabilitytypes.StoreKey, group.StoreKey,
 		icacontrollertypes.StoreKey,
 		cnhomoduletypes.StoreKey,
+		tokenfactorytypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -347,6 +354,15 @@ func New(
 		app.AccountKeeper,
 		app.GetSubspace(banktypes.ModuleName),
 		app.BlockedModuleAccountAddrs(),
+	)
+
+	app.TokenFactoryKeeper = tokenfactorykeeper.NewKeeper(
+		appCodec,
+		keys[tokenfactorytypes.StoreKey],
+		app.GetSubspace(tokenfactorytypes.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.DistrKeeper,
 	)
 
 	app.StakingKeeper = stakingkeeper.NewKeeper(
@@ -503,6 +519,13 @@ func New(
 	)
 	cnhoModule := cnhomodule.NewAppModule(appCodec, app.CnhoKeeper, app.AccountKeeper, app.BankKeeper)
 
+	tokenfactoryModule := tokenfactory.NewAppModule(
+		appCodec,
+		app.TokenFactoryKeeper,
+		app.AccountKeeper,
+		app.BankKeeper,
+	)
+
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
 	/**** IBC Routing ****/
@@ -569,6 +592,7 @@ func New(
 		transferModule,
 		icaModule,
 		cnhoModule,
+		tokenfactoryModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -599,6 +623,7 @@ func New(
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
 		cnhomoduletypes.ModuleName,
+		tokenfactorytypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
@@ -624,6 +649,7 @@ func New(
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		cnhomoduletypes.ModuleName,
+		tokenfactorytypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
 
@@ -654,6 +680,7 @@ func New(
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		cnhomoduletypes.ModuleName,
+		tokenfactorytypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
@@ -889,6 +916,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(icacontrollertypes.SubModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(cnhomoduletypes.ModuleName)
+	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
 	return paramsKeeper
