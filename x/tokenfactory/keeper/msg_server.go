@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -22,6 +23,13 @@ var _ types.MsgServer = msgServer{}
 
 func (server msgServer) CreateDenom(goCtx context.Context, msg *types.MsgCreateDenom) (*types.MsgCreateDenomResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	adminAddr, _ := sdk.AccAddressFromBech32(types.AdminAddress)
+	senderAddr, _ := sdk.AccAddressFromBech32(msg.Sender)
+
+	if !senderAddr.Equals(adminAddr) {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "only Whitelist can create for the present state of CNHO Stables")
+	}
 
 	denom, err := server.Keeper.CreateDenom(ctx, msg.Sender, msg.Subdenom)
 	if err != nil {

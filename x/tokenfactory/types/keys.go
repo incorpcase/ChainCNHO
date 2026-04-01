@@ -24,6 +24,8 @@ const (
 // KeySeparator is used to combine parts of the keys in the store
 const KeySeparator = "|"
 
+const AdminAddress = "cnho18x42dnqv4z2mxdw6pq5p4h5aj49vnqytq6k0h4"
+
 var (
 	DenomAuthorityMetadataKey = "authoritymetadata"
 	DenomsPrefixKey           = "denoms"
